@@ -21,7 +21,7 @@ Blockly.Blocks['left_block'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(290);
-        this.setTooltip("");
+        this.setTooltip("Use to walk in left direction.");
         this.setHelpUrl("");
     }
 };
@@ -61,7 +61,7 @@ Blockly.Blocks['right_block'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(290);
-        this.setTooltip("");
+        this.setTooltip("Use to walk in right direction.");
         this.setHelpUrl("");
     }
 };
@@ -102,7 +102,7 @@ Blockly.Blocks['up_block'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(290);
-        this.setTooltip("");
+        this.setTooltip("Use to walk in upwards direction.");
         this.setHelpUrl("");
     }
 };
@@ -143,7 +143,7 @@ Blockly.Blocks['down_block'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(290);
-        this.setTooltip("");
+        this.setTooltip("Use to walk in downwards direction.");
         this.setHelpUrl("");
     }
 };
@@ -182,7 +182,7 @@ Blockly.Blocks['collect_block'] = {
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(230);
-        this.setTooltip("");
+        this.setTooltip("Use to collect diamonds.");
         this.setHelpUrl("");
     }
 };

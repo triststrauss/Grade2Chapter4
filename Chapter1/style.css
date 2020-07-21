@@ -11,7 +11,7 @@ body, html {
 
 .bg {
     /* The image used */
-    background-image: url("assets/webpage/bg.jpg");
+    background-image: url("assets/webpage/bg2.jpg");
 
     /* Full height */
     height: 100%;
@@ -21,10 +21,11 @@ body, html {
     background-repeat: no-repeat;
     background-size: cover;
 }
+
 table
 {
     width: 100%;
-    height: 600px;
+    height: 1em;
     align-content: center;
 }
 
@@ -54,13 +55,18 @@ table
 
     color: rgb(41, 41, 41);
 }
-#success-content, #failure-content, #end-content, #tip-content, #character-select-content, #solution-content {
+#success-content, #failure-content, #end-content, #tip-content, #character-select-content, #solution-content,#outOfBound-content {
     position:relative;
     background-color: rgb(236, 236, 236);
     padding: 1.5em;
     max-width: 400px;
     left:38%;
     top:38%;
+}
+
+#solution-content
+{
+    top:10%;
 }
 
 .buttons-container {
@@ -136,7 +142,9 @@ table
 
 #run-btn
 {
-    width: 50em;
+    width: 10em;
+    font-size: 30px;
+    background-color: #3366cc;
 }
 
 

@@ -67,6 +67,13 @@
             <button onclick="changeLesson(currentLesson)">Okay</button>
         </div>
     </div>
+    <div id="outOfBound-content" hidden>
+        <p><center>You have crossed the bounds, please retry.<br>
+        </p>
+        <div class="buttons-container">
+            <button onclick="changeLesson(currentLesson)">Okay</button>
+        </div>
+    </div>
     <div id="end-content" hidden>
         <p><center>Congrats, you have completed all the lessons!</center></p>
         <div class="buttons-container">
@@ -90,8 +97,8 @@
 
 </body>
 
-<script src="phaser.js"></script>
-<script src="phaser.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.js"></script>
+<script src="//cdn.jsdelivr.net/npm/phaser@3.24.1/dist/phaser.min.js"></script>
 <script src="game.js"></script>
 <script src="blockly.js"></script>
 <script src="blocks.js"></script>

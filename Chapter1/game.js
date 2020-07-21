@@ -46,6 +46,8 @@ var FailureContentEle = document.getElementById("failure-content");
 var endContentEle = document.getElementById("end-content");
 var TipContentEle = document.getElementById("tip-content");
 var TipTextEle = document.getElementById("tip_text");
+var outOfBoundsContentEle = document.getElementById("outOfBound-content");
+
 var charSelectEle = document.getElementById("character-select-content");
 
 var lesson_select = document.getElementById("lesson-select");
@@ -130,7 +132,7 @@ function create()
         loop: true,
         delay :0,
     };
-    // music.play(musicConfig);
+    music.play(musicConfig);
 }
 
 function createPlayer()
@@ -199,7 +201,7 @@ function createBalls()
         removeBallAssets(balls[i])
     }
 
-    balls =[];
+    balls = [];
 
     d("Balls Length On Create : " + balls.length)
     switch (currentLesson)
@@ -286,11 +288,11 @@ function createBalls()
             break;
         case 11 :  //Descending order multiple of 100.
             balls[0] = new Ball(0,3,800,true);
-            // balls[1] = new Ball(1,15,700,false);
-            // balls[2] = new Ball(2,17,600,true);
-            // balls[3] = new Ball(3,29,400,true);
-            // balls[4] = new Ball(4,26,300,false);
-            // balls[5] = new Ball(5,14,100,true);
+            balls[1] = new Ball(1,15,700,false);
+            balls[2] = new Ball(2,17,600,true);
+            balls[3] = new Ball(3,29,400,true);
+            balls[4] = new Ball(4,26,300,false);
+            balls[5] = new Ball(5,14,100,true);
             break;
     }
 }
@@ -409,10 +411,10 @@ function update()
         currentGridCellId = 0;
     }
 
-    if(player.x < 0 || player.x > config.width)
+    if(player.x < 0 || player.x > config.width || player.y < 0 || player.y > config.height)
     {
         modalEle.hidden = false;
-        FailureContentEle.hidden = false;
+        outOfBoundsContentEle.hidden = false;
     }
 }
 
@@ -578,6 +580,11 @@ function resetPlayer()
     currentDestinationY = player.y;
 
     player.anims.play('turn',true);
+
+    velocityX = 0;
+    velocityY = 0;
+    actionsQ = [];
+    isMoving = false;
 }
 
 function d(str) {
@@ -674,45 +681,51 @@ function changeLesson(q)
     modalEle.hidden = true;
     successContentEle.hidden = true;
     FailureContentEle.hidden = true;
-    endContentEle.hidden
+    endContentEle.hidden = true;
+    outOfBoundsContentEle.hidden = true;
 }
 
-function displayTip(index) {
+function displayTip(index)
+{
     FailureContentEle.hidden = true;
     TipContentEle.hidden = false;
     modalEle.hidden = false;
 
-    switch (index) {
-        case 0:
-            TipTextEle.innerHTML = 'Here is how the 1 Rupee coin looks like! &nbsp<img id="tip-image" src="img/rupees/1Rupee.png"/>';
-            break;
 
+    switch (index)
+    {
         case 1:
-            TipTextEle.innerHTML = 'Here is how the 2 Rupee coin looks like! &nbsp<img id="tip-image" src="img/rupees/2Rupee.png"/>';
+            TipTextEle.innerHTML = '1 is smaller than 3';
             break;
-
         case 2:
-            TipTextEle.innerHTML = 'Here is how the 5 Rupee coin looks like! &nbsp<img id="tip-image" src="img/rupees/5Rupee.png"/>';
+            TipTextEle.innerHTML = '10 is bigger than 1';
             break;
-
         case 3:
-            TipTextEle.innerHTML = 'Here is how the 10 Rupee note looks like! &nbsp<img id="tip-image" src="img/rupees/10Rupee.png"/>';
+            TipTextEle.innerHTML = '2,4,6,...';
             break;
-
         case 4:
-            TipTextEle.innerHTML = 'Here is how the 100 Rupee note looks like! &nbsp<img id="tip-image" src="img/rupees/100Rupee.png"/>';
+            TipTextEle.innerHTML = '1,3,5,...';
             break;
-
         case 5:
-            TipTextEle.innerHTML = "<center>These together equal 10 Rupee!<br><br><img src='img/rupees/5Rupee.png'/><img src='img/rupees/2Rupee.png'/><img src='img/rupees/2Rupee.png'/><img src='img/rupees/1Rupee.png'/></center>";
+            TipTextEle.innerHTML = '1,2,3,...';
             break;
-
         case 6:
-            TipTextEle.innerHTML = "Walk through the map using arrows and Repeat and collect sufficient amount of money. Once you've done it, go and buy a baloon";
+            TipTextEle.innerHTML = '81,82,83,...';
             break;
-
         case 7:
-            TipTextEle.innerHTML = "Make sure, that you've collected exactly 14 Rupee!";
+            TipTextEle.innerHTML = '20,19,18,...';
+            break;
+        case 8:
+            TipTextEle.innerHTML = '10,20,30,...';
+            break;
+        case 9:
+            TipTextEle.innerHTML = '100,200,300,...';
+            break;
+        case 10:
+            TipTextEle.innerHTML = '90,80,70,...';
+            break;
+        case 11:
+            TipTextEle.innerHTML = '900,800,700,...';
             break;
     }
 
@@ -730,31 +743,31 @@ function displayTask(index)
             description.innerHTML = "Collect biggest number diamond.";
             break;
         case 3:
-            description.innerHTML = "Identifying Even nos from (2-20) we can put any no’s for kids to identify.";
+            description.innerHTML = "Collect all even number diamonds.";
             break;
         case 4:
-            description.innerHTML = "Identifying odd nos from (1-20) we can put any no’s for kids to identify";
+            description.innerHTML = "Collect all odd number diamonds.";
             break;
         case 5:
-            description.innerHTML = "Put the numbers in Ascending order (1-20)";
+            description.innerHTML = "Collect all diamonds in ascending order.";
             break;
         case 6:
-            description.innerHTML = "Put the numbers in Ascending order (80-99)";
+            description.innerHTML = "Collect all diamonds in ascending order.";
             break;
         case 7:
-            description.innerHTML = "Put the numbers in descending  order (1-20)";
+            description.innerHTML = "Collect all diamonds in descending order.";
             break;
         case 8:
-            description.innerHTML = "Put the numbers in Ascending order multiple of 10 (10,20,30,40,50 etc etc)";
+            description.innerHTML = "Collect all diamonds in ascending order.";
             break;
         case 9:
-            description.innerHTML = "Put the numbers in Ascending order multiple of 100 (100,200,300,400,500 etc etc)";
+            description.innerHTML = "Collect all diamonds in ascending order.";
             break;
         case 10:
-            description.innerHTML = "Put the numbers in descending order multiple of 10 (10,20,30,40,50 etc etc)";
+            description.innerHTML = "Collect all diamonds in descending order.";
             break;
         case 11:
-            description.innerHTML = "Put the numbers in descending order multiple of 100 (100,200,300,400,500 etc etc)";
+            description.innerHTML = "Collect all diamonds in descending order.";
             break;
     }
 }
