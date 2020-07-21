@@ -83,10 +83,16 @@ function preload()
 
     this.load.image('sparks', 'assets/particle/blue.png');
     this.load.json('emitter', 'assets/particle/sparks.json'); // see './particle editor.js'
+
+    this.load.audio("music",["assets/audio/music.mp3"]);
+    this.load.audio("collect",["assets/audio/collect.mp3"]);
+    this.load.audio("fail",["assets/audio/fail.wav"]);
 }
 
 var gridCells = [];
 var text;
+
+var music,collectSound,failSound;
 
 function create()
 {
@@ -109,11 +115,22 @@ function create()
 
     setPlayerAnimation(this);
     setBallAnimation(this);
-
     createPlayer();
-
     changeLesson(currentLesson);
 
+    collectSound = this.sound.add("collect");
+    failSound = this.sound.add("fail");
+    music = this.sound.add("music");
+    var musicConfig = {
+        mute: false,
+        volume: 1,
+        rate: 1,
+        detune: 0,
+        seek:0,
+        loop: true,
+        delay :0,
+    };
+    // music.play(musicConfig);
 }
 
 function createPlayer()
@@ -182,11 +199,9 @@ function createBalls()
         removeBallAssets(balls[i])
     }
 
-    for (let i = 0; i < balls.length; i++)
-    {
-        balls.pop();
-    }
+    balls =[];
 
+    d("Balls Length On Create : " + balls.length)
     switch (currentLesson)
     {
         case 1://Smallest number
@@ -199,10 +214,10 @@ function createBalls()
         case 2://Biggest number
 
             balls[0] = new Ball(0,7,1,false);
-            balls[0] = new Ball(0,9,25,false);
-            balls[1] = new Ball(1,23,4,false);
-            balls[1] = new Ball(1,4,15,false);
-            balls[2] = new Ball(2,26,9,true);
+            balls[1] = new Ball(0,9,25,false);
+            balls[2] = new Ball(1,23,4,false);
+            balls[3] = new Ball(1,4,15,false);
+            balls[4] = new Ball(2,26,9,true);
             break;
         case 3://All even numbers
 
@@ -402,10 +417,17 @@ function update()
 }
 
 
-function move(action)
+function walk(action, stepsCount)
 {
-    actionsQ.push(action);
-    d("push " + action);
+    if(!isPlaying)
+        return;
+
+    for (let i = 0; i < stepsCount; i++)
+    {
+        actionsQ.push(action);
+        d("push " + action);
+    }
+
 }
 
 function collectCrystal()
@@ -429,6 +451,7 @@ function checkForPickUp()
             balls[i].isPicked = true;
             removeBallAssets(balls[i]);
             var numberPicked = balls[i].number;
+            collectSound.play();
             d("NUMBER PICKED " + numberPicked);
 
             switch(currentLesson)
@@ -526,6 +549,7 @@ function removeBallAssets(ball)
 function displayTaskFailed()
 {
     d("Task Failed");
+    failSound.play();
     modalEle.hidden = false;
     FailureContentEle.hidden = false;
 }
@@ -534,7 +558,10 @@ function displayTaskSuccess()
 {
     d("Task Success");
     modalEle.hidden = false;
-    successContentEle.hidden = false;
+    if(currentLesson === 11)
+        endContentEle.hidden = false;
+    else
+        successContentEle.hidden = false;
 }
 
 
@@ -647,6 +674,7 @@ function changeLesson(q)
     modalEle.hidden = true;
     successContentEle.hidden = true;
     FailureContentEle.hidden = true;
+    endContentEle.hidden
 }
 
 function displayTip(index) {

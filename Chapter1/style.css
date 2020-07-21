@@ -109,6 +109,12 @@ table
     line-height: 2em;
 }
 
+#description-text
+{
+    text-align:center;
+    background-color: rgba(77, 82, 78, 1);
+}
+
 .solution-button
 {
     width: 40px;

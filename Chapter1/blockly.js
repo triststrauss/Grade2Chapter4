@@ -6,7 +6,9 @@ function run()
     console.log(code);
     frameCount = 1;
 
+    isPlaying = false;
     resetPlayer();
+    createBalls();
 
     if (code !== '' )
     {

@@ -13,92 +13,166 @@ Blockly.JavaScript['start_block'] = function (block) {
     return 'setPlaying(true);\n';
 };
 
-Blockly.Blocks["repeat_block"] = {
-    init: function () {
-        this.setNextStatement(true);
-        this.setPreviousStatement(true);
-        this.setOutput(false);
-        this.setColour("#16de34");
-        this.setTooltip('Repeat block');
-        this.appendDummyInput()
-            .appendField(new Blockly.FieldNumber(3, 0, 20), 'TIMES');
-        this.appendStatementInput('DO')
-            .appendField(new Blockly.FieldImage('assets/blocks/repeater.png', ARROW_BLOCK_HEIGHT * 1.6, ARROW_BLOCK_HEIGHT * 1.6));
-    }
-};
-Blockly.JavaScript['repeat_block'] = Blockly.JavaScript['controls_repeat_ext'];
-
 Blockly.Blocks['left_block'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField(new Blockly.FieldImage("assets/blocks/leftArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+            .appendField(new Blockly.FieldImage("assets/blocks/leftArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT))
+            .appendField(new Blockly.FieldDropdown([["1","1"], ["2","2"], ["3","3"], ["4","4"], ["5","5"]]), "steps");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
+        this.setColour(290);
         this.setTooltip("");
         this.setHelpUrl("");
     }
 };
 
 Blockly.JavaScript['left_block'] = function(block) {
+    var dropdown_steps = block.getFieldValue('steps');
     // TODO: Assemble JavaScript into code variable.
-    var code = 'move(ACTION_LEFT);\n';
-    return code;
-};
+    // d("DROP_DOWN : " + dropdown_steps);
 
+    if(dropdown_steps == 1)
+    {
+        return 'walk(ACTION_LEFT,1);\n';
+    }
+    else if(dropdown_steps == 2)
+    {
+        return 'walk(ACTION_LEFT,2);\n';
+    }
+    else if(dropdown_steps == 3)
+    {
+        return 'walk(ACTION_LEFT,3);\n';
+    }
+    else if(dropdown_steps == 4)
+    {
+        return 'walk(ACTION_LEFT,4);\n';
+    }
+    else if(dropdown_steps == 5)
+    {
+        return 'walk(ACTION_LEFT,5);\n';
+    }
+};
 
 Blockly.Blocks['right_block'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField(new Blockly.FieldImage("assets/blocks/rightArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+            .appendField(new Blockly.FieldImage("assets/blocks/rightArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT))
+            .appendField(new Blockly.FieldDropdown([["1","1"], ["2","2"], ["3","3"], ["4","4"], ["5","5"]]), "steps");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
+        this.setColour(290);
         this.setTooltip("");
         this.setHelpUrl("");
     }
 };
 
 Blockly.JavaScript['right_block'] = function(block) {
+    var dropdown_steps = block.getFieldValue('steps');
     // TODO: Assemble JavaScript into code variable.
-    var code = 'move(ACTION_RIGHT);\n';
-    return code;
+    // d("DROP_DOWN : " + dropdown_steps);
+
+    if(dropdown_steps == 1)
+    {
+        return 'walk(ACTION_RIGHT,1);\n';
+    }
+    else if(dropdown_steps == 2)
+    {
+        return 'walk(ACTION_RIGHT,2);\n';
+    }
+    else if(dropdown_steps == 3)
+    {
+        return 'walk(ACTION_RIGHT,3);\n';
+    }
+    else if(dropdown_steps == 4)
+    {
+        return 'walk(ACTION_RIGHT,4);\n';
+    }
+    else if(dropdown_steps == 5)
+    {
+        return 'walk(ACTION_RIGHT,5);\n';
+    }
 };
+
 
 Blockly.Blocks['up_block'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField(new Blockly.FieldImage("assets/blocks/upArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+            .appendField(new Blockly.FieldImage("assets/blocks/upArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT))
+            .appendField(new Blockly.FieldDropdown([["1","1"], ["2","2"], ["3","3"], ["4","4"], ["5","5"]]), "steps");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
+        this.setColour(290);
         this.setTooltip("");
         this.setHelpUrl("");
     }
 };
 
 Blockly.JavaScript['up_block'] = function(block) {
+    var dropdown_steps = block.getFieldValue('steps');
     // TODO: Assemble JavaScript into code variable.
-    var code = 'move(ACTION_UP);\n';
-    return code;
+    // d("DROP_DOWN : " + dropdown_steps);
+
+    if(dropdown_steps == 1)
+    {
+        return 'walk(ACTION_UP,1);\n';
+    }
+    else if(dropdown_steps == 2)
+    {
+        return 'walk(ACTION_UP,2);\n';
+    }
+    else if(dropdown_steps == 3)
+    {
+        return 'walk(ACTION_UP,3);\n';
+    }
+    else if(dropdown_steps == 4)
+    {
+        return 'walk(ACTION_UP,4);\n';
+    }
+    else if(dropdown_steps == 5)
+    {
+        return 'walk(ACTION_UP,5);\n';
+    }
 };
+
 
 Blockly.Blocks['down_block'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField(new Blockly.FieldImage("assets/blocks/downArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+            .appendField(new Blockly.FieldImage("assets/blocks/downArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT))
+            .appendField(new Blockly.FieldDropdown([["1","1"], ["2","2"], ["3","3"], ["4","4"], ["5","5"]]), "steps");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour(230);
+        this.setColour(290);
         this.setTooltip("");
         this.setHelpUrl("");
     }
 };
 
 Blockly.JavaScript['down_block'] = function(block) {
+    var dropdown_steps = block.getFieldValue('steps');
     // TODO: Assemble JavaScript into code variable.
-    var code = 'move(ACTION_DOWN);\n';
-    return code;
+    // d("DROP_DOWN : " + dropdown_steps);
+
+    if(dropdown_steps == 1)
+    {
+        return 'walk(ACTION_DOWN,1);\n';
+    }
+    else if(dropdown_steps == 2)
+    {
+        return 'walk(ACTION_DOWN,2);\n';
+    }
+    else if(dropdown_steps == 3)
+    {
+        return 'walk(ACTION_DOWN,3);\n';
+    }
+    else if(dropdown_steps == 4)
+    {
+        return 'walk(ACTION_DOWN,4);\n';
+    }
+    else if(dropdown_steps == 5)
+    {
+        return 'walk(ACTION_DOWN,5);\n';
+    }
 };
 
 Blockly.Blocks['collect_block'] = {
@@ -118,3 +192,22 @@ Blockly.JavaScript['collect_block'] = function(block) {
     var code = 'collectCrystal();\n';
     return code;
 };
+
+// switch (dropdown_steps)
+// {
+//     case 1:
+//         d("STEP 1");
+//         code = 'walk(ACTION_RIGHT,1);\n';
+//         break;
+//     case 2:
+//         return 'walk(ACTION_RIGHT,2);\n';
+//     case 3:
+//         return 'walk(ACTION_RIGHT,3);\n';
+//     case 4:
+//         return 'walk(ACTION_RIGHT,4);\n';
+//     case 5:
+//         return 'walk(ACTION_RIGHT,5);\n';
+//     default:
+//         d("DEFAULT");
+//         code = 'walk(ACTION_RIGHT,1);\n';
+// }
