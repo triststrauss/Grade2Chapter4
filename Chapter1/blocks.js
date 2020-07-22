@@ -5,7 +5,7 @@ Blockly.Blocks['start_block'] = {
         this.setColour("#f00");
         this.setTooltip('Starting block');
         this.appendDummyInput()
-            .appendField(new Blockly.FieldImage("assets/blocks/play.png", PLAY_BLOCK_WIDTH, PLAY_BLOCK_HEIGHT));
+            .appendField(new Blockly.FieldImage("assets/blocks/play.png", PLAY_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
     }
 };
 

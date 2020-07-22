@@ -68,7 +68,7 @@
         </div>
     </div>
     <div id="outOfBound-content" hidden>
-        <p><center>You have crossed the bounds, please retry.<br>
+        <p><center>You have crossed the bounds, please retry.</center><br>
         </p>
         <div class="buttons-container">
             <button onclick="changeLesson(currentLesson)">Okay</button>
@@ -125,7 +125,8 @@
         scrollbars : true,
         sounds : true,
         oneBasedIndex : true,
-        zoom : {
+        theme : customTheme,
+    zoom : {
             controls : true,
             wheel : true,
             startScale : 0.8,

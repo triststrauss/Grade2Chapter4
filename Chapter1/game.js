@@ -1,15 +1,15 @@
 const SPEED = 3;
 
 const PLAY_BLOCK_HEIGHT = 50;
-const PLAY_BLOCK_WIDTH = 150;
+const PLAY_BLOCK_WIDTH = 100;
 
 const ARROW_BLOCK_HEIGHT = 25;
 const ARROW_BLOCK_WIDTH = 50;
 
-const PLAYER_START_X = 50;
-const PLAYER_START_Y = 50;
+const PLAYER_START_X = 40;
+const PLAYER_START_Y = 40;
 
-const DISTANCE_TO_TRAVEL = 100;
+const DISTANCE_TO_TRAVEL = 80;
 const GRID_WIDTH = 100;
 const GRID_HEIGHT = 100;
 
@@ -56,8 +56,8 @@ var currentLesson = 1;
 
 var config = {
     type: Phaser.AUTO,
-    width: 600,
-    height: 600,
+    width: 480,
+    height: 480,
     parent: document.getElementById("right"),
     physics: {
         default: 'arcade',
@@ -99,14 +99,14 @@ var music,collectSound,failSound;
 function create()
 {
     game = this;
-    grid = this.add.grid(config.width / 2, config.height / 2, config.width, config.height, 100, 100, 0x057605);
+    grid = this.add.grid(config.width / 2, config.height / 2, config.width, config.height, 80, 80, 0x057605);
     var k = 0;
     for (let i = 0; i < 6; i++)
     {
         for (let j = 0; j < 6; j++)
         {
-            var posX = 50 + (i * 100) ;
-            var posY = 50 + (j * 100);
+            var posX = 40 + (i * 80) ;
+            var posY = 40 + (j * 80);
             gridCells[k] = new GridCells(k,posX,posY);
             k++;
         }
@@ -138,7 +138,7 @@ function create()
 function createPlayer()
 {
     player = game.add.sprite(50, 50, 'dude');
-    player.setScale(2);
+    player.setScale(1.5);
     player.depth = 10;
 }
 
@@ -216,10 +216,10 @@ function createBalls()
         case 2://Biggest number
 
             balls[0] = new Ball(0,7,1,false);
-            balls[1] = new Ball(0,9,25,false);
+            balls[1] = new Ball(0,9,25,true);
             balls[2] = new Ball(1,23,4,false);
             balls[3] = new Ball(1,4,15,false);
-            balls[4] = new Ball(2,26,9,true);
+            balls[4] = new Ball(2,26,9,false);
             break;
         case 3://All even numbers
 
@@ -232,10 +232,10 @@ function createBalls()
             break;
         case 4: //All odd numbers
             balls[0] = new Ball(0,20,1,true);
-            balls[1] = new Ball(1,21,4,true);
+            balls[1] = new Ball(1,21,4,false);
             balls[2] = new Ball(2,4,9,true);
             balls[3] = new Ball(3,34,11,true);
-            balls[4] = new Ball(4,7,8,true);
+            balls[4] = new Ball(4,7,8,false);
             balls[5] = new Ball(5,8,17,true);
             break;
         case 5: //Ascending order (1-20)
@@ -608,12 +608,13 @@ class Ball
 {
     constructor(id,index,number,correctBall)
     {
-        var posX = 50 + ((index - 1) % 6) * 100;
-        var posY = 50 + Math.floor((index - 1)/6) * 100;
+        var posX = 40 + ((index - 1) % 6) * 80;
+        var posY = 40 + Math.floor((index - 1)/6) * 80;
         d("Position X :" + posX);
         d("Position Y :" + posY);
         this.id = id;
         this.gameObject = game.add.image(posX,posY,'ball');
+        this.gameObject.scale = 0.8;
         this.gridCell = getGridCell(posX,posY);
         this.isPicked = false;
         this.number = number;
