@@ -432,7 +432,7 @@ function walk(action, stepsCount)
 
 }
 
-function collectCrystal()
+function collectDiamond()
 {
     actionsQ.push(ACTION_PICK);
     d("push " + ACTION_PICK);
@@ -684,6 +684,7 @@ function changeLesson(q)
     FailureContentEle.hidden = true;
     endContentEle.hidden = true;
     outOfBoundsContentEle.hidden = true;
+    TipContentEle.hidden = true;
 }
 
 function displayTip(index)

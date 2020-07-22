@@ -189,7 +189,7 @@ Blockly.Blocks['collect_block'] = {
 
 Blockly.JavaScript['collect_block'] = function(block) {
     // TODO: Assemble JavaScript into code variable.
-    var code = 'collectCrystal();\n';
+    var code = 'collectDiamond();\n';
     return code;
 };
 
