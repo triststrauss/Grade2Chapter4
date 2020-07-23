@@ -51,6 +51,7 @@ var outOfBoundsContentEle = document.getElementById("outOfBound-content");
 var charSelectEle = document.getElementById("character-select-content");
 
 var lesson_select = document.getElementById("lesson-select");
+var runButton = document.getElementById("run-btn");
 
 var currentLesson = 1;
 
@@ -89,12 +90,13 @@ function preload()
     this.load.audio("music",["assets/audio/music.mp3"]);
     this.load.audio("collect",["assets/audio/collect.mp3"]);
     this.load.audio("fail",["assets/audio/fail.wav"]);
+    this.load.audio("wrongCollect",["assets/audio/wrongCollect.wav"]);
 }
 
 var gridCells = [];
 var text;
 
-var music,collectSound,failSound;
+var music,collectSound,failSound,wrongCollect;
 
 function create()
 {
@@ -115,8 +117,7 @@ function create()
 
 
 
-    setPlayerAnimation(this);
-    setBallAnimation(this);
+    createPlayerAnimation(this);
     createPlayer();
     changeLesson(currentLesson);
 
@@ -133,6 +134,8 @@ function create()
         delay :0,
     };
     music.play(musicConfig);
+
+    wrongCollect = this.sound.add("wrongCollect");
 }
 
 function createPlayer()
@@ -141,58 +144,6 @@ function createPlayer()
     player.setScale(1.5);
     player.depth = 10;
 }
-
-// function createBalls()
-// {
-//     for (let i = 0; i < balls.length; i++)
-//     {
-//         removeBallAssets(balls[i])
-//     }
-//
-//     for (let i = 0; i < balls.length; i++)
-//     {
-//         balls.pop();
-//     }
-//
-//     switch (currentLesson)
-//     {
-//         case 1:
-//             balls[0] = new Ball(0,game.add.image(150,50,'ball'),1,true);
-//             balls[1] = new Ball(1,game.add.sprite(250,450,'ball'),10,false);
-//             balls[2] = new Ball(2,game.add.sprite(150,350,'ball'),15,false);
-//             balls[2] = new Ball(2,game.add.sprite(150,350,'ball'),15,false);
-//             break;
-//         case 2:
-//             balls[0] = new Ball(0,game.add.image(250,350,'ball'),1,false);
-//             balls[1] = new Ball(1,game.add.image(250,550,'ball'),4,false);
-//             balls[2] = new Ball(2,game.add.image(150,150,'ball'),9,true);
-//             break;
-//         case 3:
-//             balls[0] = new Ball(0,game.add.image(250,350,'ball'),1,false);
-//             balls[1] = new Ball(1,game.add.image(550,150,'ball'),4,true);
-//             balls[2] = new Ball(1,game.add.image(150,250,'ball'),6,true);
-//             balls[3] = new Ball(2,game.add.image(150,150,'ball'),9,false);
-//             balls[4] = new Ball(2,game.add.image(150,350,'ball'),10,true);
-//             balls[5] = new Ball(2,game.add.image(350,450,'ball'),16,true);
-//             break;
-//         case 4:
-//             balls[0] = new Ball(0,game.add.image(250,150,'ball'),1,true);
-//             balls[1] = new Ball(1,game.add.image(250,550,'ball'),4,false);
-//             balls[2] = new Ball(2,game.add.image(150,550,'ball'),9,true);
-//             balls[3] = new Ball(3,game.add.image(550,50,'ball'),11,true);
-//             balls[4] = new Ball(4,game.add.image(250,350,'ball'),8,false);
-//             balls[5] = new Ball(5,game.add.image(50,450,'ball'),17,true);
-//             break;
-//         case 5:
-//             balls[0] = new Ball(0,game.add.image(250,150,'ball'),1,true);
-//             balls[1] = new Ball(1,game.add.image(250,550,'ball'),4,false);
-//             balls[2] = new Ball(2,game.add.image(150,550,'ball'),9,true);
-//             balls[3] = new Ball(3,game.add.image(550,50,'ball'),11,true);
-//             balls[4] = new Ball(4,game.add.image(250,350,'ball'),8,false);
-//             balls[5] = new Ball(5,game.add.image(50,450,'ball'),17,true);
-//             break;
-//     }
-// }
 
 function createBalls()
 {
@@ -297,7 +248,7 @@ function createBalls()
     }
 }
 
-function setPlayerAnimation(c)
+function createPlayerAnimation(c)
 {
     c.anims.create({
         key: ANIM_LEFT,
@@ -321,22 +272,22 @@ function setPlayerAnimation(c)
 
 }
 
-function setBallAnimation(c)
-{
-    c.anims.create({
-        key: ANIM_IDLE,
-        frames: [ { key: 'ball', frame: 2 } ],
-        frameRate:20,
-        repeat:1
-    });
-
-    c.anims.create({
-        key: ANIM_COLLECT,
-        frames: c.anims.generateFrameNumbers('ball', { start: 1, end: 6 }),
-        frameRate:20,
-        repeat:1
-    });
-}
+// function setBallAnimation(c)
+// {
+//     c.anims.create({
+//         key: ANIM_IDLE,
+//         frames: [ { key: 'ball', frame: 2 } ],
+//         frameRate:20,
+//         repeat:1
+//     });
+//
+//     c.anims.create({
+//         key: ANIM_COLLECT,
+//         frames: c.anims.generateFrameNumbers('ball', { start: 1, end: 6 }),
+//         frameRate:20,
+//         repeat:1
+//     });
+// }
 
 var currentGridCellId;
 
@@ -353,12 +304,12 @@ function update()
                 if(action === ACTION_RIGHT)
                 {
                     velocityX = 1;
-                    player.anims.play('right', true);
+                    setPlayerAnimation(ANIM_RIGHT);
                 }
                 else
                 {
                     velocityX = -1;
-                    player.anims.play('left', true);
+                    setPlayerAnimation(ANIM_LEFT);
                 }
 
                 currentDestinationX = player.x + DISTANCE_TO_TRAVEL * velocityX;
@@ -376,6 +327,12 @@ function update()
             {
                 checkForPickUp();
             }
+        }
+        else
+        {
+            if(currentPlayerAnimation !== ANIM_TURN)
+                wrongCollect.play();
+            setPlayerAnimation(ANIM_TURN);
         }
     }
     else
@@ -396,7 +353,6 @@ function update()
         if(velocityX === 0 && velocityY === 0)
         {
             isMoving = false;
-            player.anims.play('turn',true);
         }
     }
 
@@ -415,6 +371,15 @@ function update()
     {
         modalEle.hidden = false;
         outOfBoundsContentEle.hidden = false;
+    }
+
+    if(currentGridCellId !== 0)
+    {
+        runButton.innerHTML = "RESET";
+    }
+    else
+    {
+        runButton.innerHTML = "RUN";
     }
 }
 
@@ -442,6 +407,7 @@ function checkForPickUp()
 {
     d("CHECK FOR PICK :" + balls.length);
 
+    let ballPicked = false;
     for (let i = 0; i < balls.length; i++)
     {
         d(balls[i].gridCell.id + "  -  " + currentGridCellId);
@@ -454,6 +420,7 @@ function checkForPickUp()
             removeBallAssets(balls[i]);
             var numberPicked = balls[i].number;
             collectSound.play();
+            ballPicked = true;
             d("NUMBER PICKED " + numberPicked);
 
             switch(currentLesson)
@@ -536,6 +503,10 @@ function checkForPickUp()
             }
         }
     }
+
+    if(!ballPicked)
+        wrongCollect.play();
+
 }
 
 function removeBallAssets(ball)
@@ -579,8 +550,7 @@ function resetPlayer()
     currentDestinationX = player.x;
     currentDestinationY = player.y;
 
-    player.anims.play('turn',true);
-
+    setPlayerAnimation(ANIM_TURN);
     velocityX = 0;
     velocityY = 0;
     actionsQ = [];
@@ -665,12 +635,16 @@ function changeLesson(q)
     {
         selected = q;
     }
+    let prvLesson = currentLesson;
     currentLesson = selected;
+
+    if(prvLesson !== currentLesson)
+        workspace.clear();
 
     lesson_select.selectedIndex = currentLesson - 1;
 
     d("CURRENT LESSON : " + currentLesson);
-    workspace.clear();
+
     // createGameObjects();
     resetPlayer();
     createBalls();
@@ -822,3 +796,32 @@ function hideCodeSolution()
     solutionTextEle.hidden = true;
     modalEle.hidden = true;
 }
+
+function onRunClicked()
+{
+    if(currentGridCellId !== 0)
+    {
+        reset();
+    }
+    else
+    {
+        run();
+    }
+}
+
+function reset()
+{
+    isPlaying = false;
+    resetPlayer();
+    createBalls();
+}
+
+function setPlayerAnimation(animToSet)
+{
+    if(animToSet !== currentPlayerAnimation)
+        player.anims.play(animToSet, true);
+
+    currentPlayerAnimation = animToSet;
+}
+
+var currentPlayerAnimation;
