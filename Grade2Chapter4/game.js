@@ -57,9 +57,9 @@ var currentLesson = 1;
 
 var config = {
     type: Phaser.AUTO,
-    width: 480,
+    width: 1120,
     height: 480,
-    parent: document.getElementById("right"),
+    parent: document.getElementById("phaser"),
     physics: {
         default: 'arcade',
         arcade: {

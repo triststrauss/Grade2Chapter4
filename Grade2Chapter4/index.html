@@ -8,30 +8,8 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body class="bg">
-<table>
-    <tr>
-        <div id="top-div" class="">
-            <div id="chapter-lesson-wrapper">
-                <select id="lesson-select" onchange="changeLesson()" onload="changeLesson">
-                    <option value="1" selected>Lesson 1</option>
-                    <option value="2">Lesson 2</option>
-                    <option value="3">Lesson 3</option>
-                    <option value="4">Lesson 4</option>
-                    <option value="5">Lesson 5</option>
-                    <option value="6">Lesson 6</option>
-                    <option value="7">Lesson 7</option>
-                    <option value="8">Lesson 8</option>
-                    <option value="9">Lesson 9</option>
-                    <option value="10">Lesson 10</option>
-                    <option value="11">Lesson 11</option>
-                </select>
-            </div>
-            <p id="description-text"></p>
-        </div>
-    </tr>
-    <tr>
-        <td>
-            <div id = "left">
+
+            <div id = "leftbox">
                 <div id="blockly-wrapper">
                     <div id="blocklyDiv"></div>
 
@@ -45,11 +23,28 @@
                     </div>
                 </div>
             </div>
-        </td>
-        <td><div id = "right"></div></td>
 
-    </tr>
-</table>
+            <div id="rightbox">
+                    <div id="top-div" class="">
+                        <div id="chapter-lesson-wrapper">
+                            <select id="lesson-select" onchange="changeLesson()" onload="changeLesson">
+                                <option value="1" selected>Lesson 1</option>
+                                <option value="2">Lesson 2</option>
+                                <option value="3">Lesson 3</option>
+                                <option value="4">Lesson 4</option>
+                                <option value="5">Lesson 5</option>
+                                <option value="6">Lesson 6</option>
+                                <option value="7">Lesson 7</option>
+                                <option value="8">Lesson 8</option>
+                                <option value="9">Lesson 9</option>
+                                <option value="10">Lesson 10</option>
+                                <option value="11">Lesson 11</option>
+                            </select>
+                        </div>
+                        <p id="description-text"></p>
+                    </div>
+                <div id = "phaser"></div>
+            </div>
 
 <div id="modal" hidden>
     <div id="success-content" hidden>
