@@ -16,6 +16,7 @@ body, html {
     background-size: cover;
 }
 #leftbox {
+    padding-top: 50px;
     float:left;
     /*background:Red;*/
     width:25%;
@@ -33,7 +34,7 @@ body, html {
 #blocklyDiv
 {
     position: center;
-    height: 40em;
+    height: 20em;
     max-width: 20em;
     width: 50vw;
     /*box-shadow: 0px 0px 40px 20px #0ff;*/
@@ -52,7 +53,7 @@ body, html {
 
     color: rgb(41, 41, 41);
 }
-#success-content, #failure-content, #end-content, #tip-content, #character-select-content, #solution-content,#outOfBound-content {
+#success-content, #failure-content, #end-content, #tip-content, #character-select-content, #solution-content,#outOfBound-content,#fire-content {
     position:relative;
     background-color: rgb(236, 236, 236);
     padding: 1.5em;

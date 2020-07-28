@@ -1,4 +1,28 @@
+var config = {
+    type: Phaser.AUTO,
+    width: 1120,
+    height: 480,
+    parent: document.getElementById("phaser"),
+    physics: {
+        default: 'arcade',
+        arcade: {
+            gravity: {y: 200}
+        }
+    },
+    scene: {
+        preload: preload,
+        create: create,
+        update: update
+    }
+};
+
+var game = new Phaser.Game(config);
+
+
 const SPEED = 3;
+
+const GRID_CELL_SIZE = 80;
+const TOTAL_GRID_CELLS  = 12;
 
 const PLAY_BLOCK_HEIGHT = 50;
 const PLAY_BLOCK_WIDTH = 100;
@@ -7,9 +31,14 @@ const ARROW_BLOCK_HEIGHT = 25;
 const ARROW_BLOCK_WIDTH = 50;
 
 const PLAYER_START_X = 40;
-const PLAYER_START_Y = 40;
+const PLAYER_START_Y = 285;
 
-const DISTANCE_TO_TRAVEL = 80;
+const CURRENCY_POS_Y = 285;
+
+const BANK_POS_X = 1080;
+const BANK_POS_Y = 285;
+
+const DISTANCE_TO_TRAVEL = GRID_CELL_SIZE;
 const GRID_WIDTH = 100;
 const GRID_HEIGHT = 100;
 
@@ -18,14 +47,14 @@ const ACTION_RIGHT = 2;
 const ACTION_UP = 3;
 const ACTION_DOWN = 4;
 const ACTION_PICK = 5;
+const ACTION_JUMP = 6;
 
 const ANIM_LEFT = 'left';
 const ANIM_RIGHT = 'right';
 const ANIM_TURN = 'turn';
-
-
 const ANIM_IDLE = 'idle';
 const ANIM_COLLECT = 'collect';
+const ANIM_FIRE = 'fire';
 
 var isMoving;
 var velocityX = 0, velocityY = 0;
@@ -47,6 +76,7 @@ var endContentEle = document.getElementById("end-content");
 var TipContentEle = document.getElementById("tip-content");
 var TipTextEle = document.getElementById("tip_text");
 var outOfBoundsContentEle = document.getElementById("outOfBound-content");
+var fireContentEle = document.getElementById("fire-content");
 
 var charSelectEle = document.getElementById("character-select-content");
 
@@ -55,75 +85,97 @@ var runButton = document.getElementById("run-btn");
 
 var currentLesson = 1;
 
-var config = {
-    type: Phaser.AUTO,
-    width: 1120,
-    height: 480,
-    parent: document.getElementById("phaser"),
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: {y: 200}
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
+var gridCells = [];
+var text;
 
-var game = new Phaser.Game(config);
+var music,collectSound,failSound,wrongCollect;
+var fire;
+
+var currentGridCellId;
+
+var piggyBank;
 
 function preload()
 {
+    //Images
     this.load.image('ball','assets/gameObjects/crystal.png');
-    // this.load.spritesheet('ball','assets/gameObjects/balls.png',{frameWidth: 17,frameHeight: 17});
+    this.load.image('piggyBank','assets/gameObjects/piggyBank.png');
+    this.load.image('bg','assets/gameObjects/bg.png');
 
+    //FrameAnimations
     this.load.spritesheet('dude', 'assets/gameObjects/dude.png', { frameWidth: 32, frameHeight: 48 });
+    this.load.spritesheet('fire', 'assets/gameObjects/fire.png', { frameWidth: 64, frameHeight: 64 });
 
-    // this.load.image('star', 'assets/star.png');
-
+    //ParticleEffects
     this.load.image('sparks', 'assets/particle/blue.png');
     this.load.json('emitter', 'assets/particle/sparks.json'); // see './particle editor.js'
 
+    //SoundsAndMusic
     this.load.audio("music",["assets/audio/music.mp3"]);
     this.load.audio("collect",["assets/audio/collect.mp3"]);
     this.load.audio("fail",["assets/audio/fail.wav"]);
     this.load.audio("wrongCollect",["assets/audio/wrongCollect.wav"]);
 }
 
-var gridCells = [];
-var text;
-
-var music,collectSound,failSound,wrongCollect;
 
 function create()
 {
+    d("CREATE");
     game = this;
-    grid = this.add.grid(config.width / 2, config.height / 2, config.width, config.height, 80, 80, 0x057605);
-    var k = 0;
-    for (let i = 0; i < 6; i++)
-    {
-        for (let j = 0; j < 6; j++)
-        {
-            var posX = 40 + (i * 80) ;
-            var posY = 40 + (j * 80);
-            gridCells[k] = new GridCells(k,posX,posY);
-            k++;
-        }
-    }
-    cursors = this.input.keyboard.createCursorKeys();
-
-
-
-    createPlayerAnimation(this);
+    game.add.image(config.width/2,config.height/2,'bg');
+    createGrids();
+    createAnimations(this);
     createPlayer();
+    createFire();
+    addSoundsAndMusic();
     changeLesson(currentLesson);
+    // piggyBank = game.add.image(BANK_POS_X,BANK_POS_Y,'piggyBank');
 
-    collectSound = this.sound.add("collect");
-    failSound = this.sound.add("fail");
-    music = this.sound.add("music");
+}
+
+function createGrids()
+{
+    var k = 0;
+    for (let i = 0; i < 12; i++)
+    {
+        var posX = GRID_CELL_SIZE/2 + (i * GRID_CELL_SIZE) ;
+        var posY = 320;
+        gridCells[k] = new GridCells(k,posX,posY);
+        k++;
+    }
+}
+
+function createPlayer()
+{
+    player = game.add.sprite(50, 50, 'dude');
+    player.setScale(1.5);
+    player.depth = 10;
+}
+
+function createFire()
+{
+    fire = game.add.sprite(0, 0, 'fire');
+    fire.anims.play(ANIM_FIRE,true);
+}
+
+var fireGridCellID;
+function resetFire(index)
+{
+    var posX = 40 + (index * GRID_CELL_SIZE);
+    var posY = CURRENCY_POS_Y;
+
+    fire.x = posX;
+    fire.y = posY;
+    fireGridCellID = getGridCell(posX,posY).id;
+    console.log("FIRE ID" + fireGridCellID);
+}
+
+function addSoundsAndMusic()
+{
+    collectSound = game.sound.add("collect");
+    failSound = game.sound.add("fail");
+    music = game.sound.add("music");
+    wrongCollect = game.sound.add("wrongCollect");
     var musicConfig = {
         mute: false,
         volume: 1,
@@ -133,16 +185,7 @@ function create()
         loop: true,
         delay :0,
     };
-    music.play(musicConfig);
-
-    wrongCollect = this.sound.add("wrongCollect");
-}
-
-function createPlayer()
-{
-    player = game.add.sprite(50, 50, 'dude');
-    player.setScale(1.5);
-    player.depth = 10;
+    // music.play(musicConfig);
 }
 
 function createBalls()
@@ -154,101 +197,92 @@ function createBalls()
 
     balls = [];
 
-    d("Balls Length On Create : " + balls.length)
     switch (currentLesson)
     {
-        case 1://Smallest number
-
+        case 1://Identify 100
+            balls[0] = new Ball(0,3,100,true);
+            balls[1] = new Ball(1,5,200,false);
+            balls[2] = new Ball(2,7,500,false);
+            balls[3] = new Ball(3,9,2000,false);
+            resetFire(2);
+            break;
+        case 2://Identify 500
+            balls[0] = new Ball(0,2,1,false);
+            balls[1] = new Ball(1,3,5,false);
+            balls[2] = new Ball(2,4,10,false);
+            balls[3] = new Ball(3,7,2000,false);
+            balls[4] = new Ball(410,9,500,true);
+            resetFire(8);
+            break;
+        case 3://Identify 2000
+            balls[0] = new Ball(0,3,100,false);
+            balls[1] = new Ball(1,4,2000,false);
+            balls[2] = new Ball(2,6,200,true);
+            balls[3] = new Ball(3,9,500,false);
+            resetFire(5);
+            break;
+        case 4: //Collect All the currency.
             balls[0] = new Ball(0,2,1,true);
-            balls[1] = new Ball(1,19,10,false);
-            balls[2] = new Ball(2,28,15,false);
-            balls[3] = new Ball(2,17,31,false);
+            balls[1] = new Ball(1,4,2,true);
+            balls[2] = new Ball(2,5,10,true);
+            balls[3] = new Ball(3,7,100,true);
+            balls[4] = new Ball(4,9,500,true);
+            resetFire(3);
             break;
-        case 2://Biggest number
-
-            balls[0] = new Ball(0,7,1,false);
-            balls[1] = new Ball(0,9,25,true);
-            balls[2] = new Ball(1,23,4,false);
-            balls[3] = new Ball(1,4,15,false);
-            balls[4] = new Ball(2,26,9,false);
+        case 5: //Collect All the currency.
+            balls[0] = new Ball(0,3,100,true);
+            balls[1] = new Ball(1,5,200,true);
+            balls[2] = new Ball(2,6,500,true);
+            balls[3] = new Ball(3,7,2000,true);
+            balls[4] = new Ball(4,11,50,true);
+            resetFire(4);
             break;
-        case 3://All even numbers
-
-            balls[0] = new Ball(0,8,1,false);
-            balls[1] = new Ball(1,20,4,true);
-            balls[2] = new Ball(1,22,6,true);
-            balls[3] = new Ball(2,4,9,false);
-            balls[4] = new Ball(2,6,10,true);
-            balls[5] = new Ball(2,29,17,false);
+        case 6 : //Collect sum of 250.
+            balls[0] = new Ball(0,2,200,true);
+            balls[1] = new Ball(1,5,50,true);
+            balls[2] = new Ball(2,6,500,true);
+            balls[3] = new Ball(3,7,2000,true);
+            balls[4] = new Ball(4,12,5,true);
+            resetFire(9);
             break;
-        case 4: //All odd numbers
-            balls[0] = new Ball(0,20,1,true);
-            balls[1] = new Ball(1,21,4,false);
-            balls[2] = new Ball(2,4,9,true);
-            balls[3] = new Ball(3,34,11,true);
-            balls[4] = new Ball(4,7,8,false);
-            balls[5] = new Ball(5,8,17,true);
+        case 7 : //Collect sum of 350.
+            balls[0] = new Ball(0,2,100,true);
+            balls[1] = new Ball(1,4,100,true);
+            balls[2] = new Ball(2,6,100,true);
+            balls[3] = new Ball(3,7,500,false);
+            balls[4] = new Ball(4,11,50,true);
+            resetFire(8);
             break;
-        case 5: //Ascending order (1-20)
-            balls[0] = new Ball(0,13,1,true);
-            balls[1] = new Ball(1,27,4,true);
-            balls[2] = new Ball(2,17,9,true);
-            balls[3] = new Ball(3,5,11,true);
-            balls[4] = new Ball(4,35,15,true);
-            balls[5] = new Ball(5,32,20,true);
+        case 8 : //Collect sum of 500.
+            balls[0] = new Ball(0,3,200,true);
+            balls[1] = new Ball(1,4,100,true);
+            balls[2] = new Ball(2,7,500,false);
+            balls[3] = new Ball(3,8,2000,false);
+            balls[4] = new Ball(4,12,200,true);
+            resetFire(9);
             break;
-        case 6 : //Ascending order (80-99)
-            balls[0] = new Ball(0,6,81,true);
-            balls[1] = new Ball(1,18,85,true);
-            balls[2] = new Ball(2,29,88,true);
-            balls[3] = new Ball(3,27,91,true);
-            balls[4] = new Ball(4,19,97,true);
-            balls[5] = new Ball(5,3,99,true);
-            break;
-        case 7 : //Descending order (1 -20)
-            balls[0] = new Ball(0,13,20,true);
-            balls[1] = new Ball(1,20,17,true);
-            balls[2] = new Ball(2,35,14,true);
-            balls[3] = new Ball(3,22,11,true);
-            balls[4] = new Ball(4,10,7,true);
-            balls[5] = new Ball(5,2,3,true);
-            break;
-        case 8 : //Ascending order multiple of 10.
-            balls[0] = new Ball(0,13,10,true);
-            balls[1] = new Ball(1,31,30,true);
-            balls[2] = new Ball(2,33,40,true);
-            balls[3] = new Ball(3,21,60,true);
-            balls[4] = new Ball(4,23,80,true);
-            balls[5] = new Ball(5,5,90,true);
-            break;
-        case 9 : //Ascending order multiple of 100.
+        case 9 : //Problem Solving
             balls[0] = new Ball(0,3,200,true);
             balls[1] = new Ball(1,5,300,false);
             balls[2] = new Ball(2,17,400,true);
             balls[3] = new Ball(3,36,600,true);
             balls[4] = new Ball(4,34,700,false);
             balls[5] = new Ball(5,21,900,true);
+            resetFire(9);
             break;
-        case 10 : //Descending order multiple of 10.
+        case 10 : //Problem Solving
             balls[0] = new Ball(0,7,90,true);
             balls[1] = new Ball(1,9,70,false);
             balls[2] = new Ball(2,21,60,true);
             balls[3] = new Ball(3,23,50,true);
             balls[4] = new Ball(4,35,30,false);
             balls[5] = new Ball(5,31,10,true);
-            break;
-        case 11 :  //Descending order multiple of 100.
-            balls[0] = new Ball(0,3,800,true);
-            balls[1] = new Ball(1,15,700,false);
-            balls[2] = new Ball(2,17,600,true);
-            balls[3] = new Ball(3,29,400,true);
-            balls[4] = new Ball(4,26,300,false);
-            balls[5] = new Ball(5,14,100,true);
+            resetFire(9);
             break;
     }
 }
 
-function createPlayerAnimation(c)
+function createAnimations(c)
 {
     c.anims.create({
         key: ANIM_LEFT,
@@ -270,26 +304,15 @@ function createPlayerAnimation(c)
         repeat: -1
     });
 
+    c.anims.create({
+        key: ANIM_FIRE,
+        frames: c.anims.generateFrameNumbers('fire', { start: 0, end: 3 }),
+        frameRate: 10,
+        repeat: -1
+    });
 }
 
-// function setBallAnimation(c)
-// {
-//     c.anims.create({
-//         key: ANIM_IDLE,
-//         frames: [ { key: 'ball', frame: 2 } ],
-//         frameRate:20,
-//         repeat:1
-//     });
-//
-//     c.anims.create({
-//         key: ANIM_COLLECT,
-//         frames: c.anims.generateFrameNumbers('ball', { start: 1, end: 6 }),
-//         frameRate:20,
-//         repeat:1
-//     });
-// }
 
-var currentGridCellId;
 
 function update()
 {
@@ -318,8 +341,10 @@ function update()
             }
             else if (action === ACTION_UP || action === ACTION_DOWN)
             {
+                velocityX = 1;
                 velocityY = action === ACTION_DOWN ? 1 : -1;
                 currentDestinationY = player.y + DISTANCE_TO_TRAVEL * velocityY;
+                currentDestinationX = player.x + DISTANCE_TO_TRAVEL * velocityX;
                 d('DESTINATION Y : ' + currentDestinationY);
                 isMoving = true;
             }
@@ -373,6 +398,12 @@ function update()
         outOfBoundsContentEle.hidden = false;
     }
 
+    if(currentGridCellId === fireGridCellID)
+    {
+        modalEle.hidden = false;
+        fireContentEle.hidden = false;
+    }
+
     if(currentGridCellId !== 0)
     {
         runButton.innerHTML = "RESET";
@@ -408,6 +439,7 @@ function checkForPickUp()
     d("CHECK FOR PICK :" + balls.length);
 
     let ballPicked = false;
+    let allCollected = true;
     for (let i = 0; i < balls.length; i++)
     {
         d(balls[i].gridCell.id + "  -  " + currentGridCellId);
@@ -427,14 +459,19 @@ function checkForPickUp()
             {
                 case 1:
                 case 2:
+                case 3:
                     if(balls[i].isCorrectBall)
                         displayTaskSuccess();
                     else
                         displayTaskFailed();
                 break;
-                case 3 :
-                case 4 :
-                    var allCollected = true;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                case 8:
+                case 9:
+                case 10:
                     if(balls[i].isCorrectBall)
                     {
                         for (let j = 0; j < balls.length; j++)
@@ -450,56 +487,6 @@ function checkForPickUp()
                     else
                         displayTaskFailed();
                 break;
-                case 5:
-                case 6:
-                case 8:
-                case 9:
-                    for (let j = 0; j < balls.length; j++)
-                    {
-                        if(!balls[j].isPicked)
-                        {
-                            if(numberPicked > balls[j].number)
-                            {
-                                displayTaskFailed();
-                            }
-                        }
-                    }
-
-                    var allCollected = true;
-
-                    for (let j = 0; j < balls.length; j++) {
-                        if(!balls[j].isPicked)
-                            allCollected = false;
-                    }
-
-                    if(allCollected)
-                        displayTaskSuccess();
-                    break;
-                case 7:
-                case 10:
-                case 11:
-                    for (let j = 0; j < balls.length; j++)
-                    {
-                        if(!balls[j].isPicked)
-                        {
-                            if(numberPicked < balls[j].number)
-                            {
-                                displayTaskFailed();
-                            }
-                        }
-                    }
-
-                    var allCollected = true;
-                    d("Balls.Lenght : "  +balls.length);
-                    for (let j = 0; j < balls.length; j++)
-                    {
-                        if(!balls[j].isPicked)
-                            allCollected = false;
-                    }
-
-                    if(allCollected)
-                        displayTaskSuccess();
-                    break;
             }
         }
     }
@@ -578,10 +565,10 @@ class Ball
 {
     constructor(id,index,number,correctBall)
     {
-        var posX = 40 + ((index - 1) % 6) * 80;
-        var posY = 40 + Math.floor((index - 1)/6) * 80;
-        d("Position X :" + posX);
-        d("Position Y :" + posY);
+        var posX = 40 + (index * GRID_CELL_SIZE);
+        var posY = CURRENCY_POS_Y;
+        // d("Position X :" + posX);
+        // d("Position Y :" + posY);
         this.id = id;
         this.gameObject = game.add.image(posX,posY,'ball');
         this.gameObject.scale = 0.8;
@@ -659,6 +646,7 @@ function changeLesson(q)
     endContentEle.hidden = true;
     outOfBoundsContentEle.hidden = true;
     TipContentEle.hidden = true;
+    fireContentEle.hidden = true;
 }
 
 function displayTip(index)
@@ -700,9 +688,6 @@ function displayTip(index)
         case 10:
             TipTextEle.innerHTML = '90,80,70,...';
             break;
-        case 11:
-            TipTextEle.innerHTML = '900,800,700,...';
-            break;
     }
 
 }
@@ -713,37 +698,34 @@ function displayTask(index)
 
     switch (index) {
         case 1:
-            description.innerHTML = "Collect smallest number diamond.";
+            description.innerHTML = "Collect 100 rupees note.";
             break;
         case 2:
-            description.innerHTML = "Collect biggest number diamond.";
+            description.innerHTML = "Collect 500 rupees note.";
             break;
         case 3:
-            description.innerHTML = "Collect all even number diamonds.";
+            description.innerHTML = "Collect 2000 rupees note.";
             break;
         case 4:
-            description.innerHTML = "Collect all odd number diamonds.";
+            description.innerHTML = "Collect all the money.";
             break;
         case 5:
-            description.innerHTML = "Collect all diamonds in ascending order.";
+            description.innerHTML = "Collect all the money.";
             break;
         case 6:
-            description.innerHTML = "Collect all diamonds in ascending order.";
+            description.innerHTML = "Collect 250 Rupees.";
             break;
         case 7:
-            description.innerHTML = "Collect all diamonds in descending order.";
+            description.innerHTML = "Collect 300 Rupees.";
             break;
         case 8:
-            description.innerHTML = "Collect all diamonds in ascending order.";
+            description.innerHTML = "Collect 350 Rupees.";
             break;
         case 9:
-            description.innerHTML = "Collect all diamonds in ascending order.";
+            description.innerHTML = "One ball costs Rupees 10, Collect money for 3 balls.";
             break;
         case 10:
-            description.innerHTML = "Collect all diamonds in descending order.";
-            break;
-        case 11:
-            description.innerHTML = "Collect all diamonds in descending order.";
+            description.innerHTML = "One ball costs Rupees 10, Collect money for 4 balls.";
             break;
     }
 }
@@ -825,3 +807,20 @@ function setPlayerAnimation(animToSet)
 }
 
 var currentPlayerAnimation;
+
+function ifBlock()
+{
+
+}
+
+function isNextFire()
+{
+    return true;
+}
+
+function jump()
+{
+    d("*********JUMP*************");
+    actionsQ.push(ACTION_UP);
+    actionsQ.push(ACTION_DOWN);
+}
