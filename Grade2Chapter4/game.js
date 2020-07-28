@@ -33,7 +33,7 @@ const ARROW_BLOCK_WIDTH = 50;
 const PLAYER_START_X = 40;
 const PLAYER_START_Y = 285;
 
-const CURRENCY_POS_Y = 285;
+const CURRENCY_POS_Y = 295;
 
 const BANK_POS_X = 1080;
 const BANK_POS_Y = 285;
@@ -95,10 +95,25 @@ var currentGridCellId;
 
 var piggyBank;
 
+var registeredActionForFire;
+
+var moneyCollected;
+var moneyCollectedText;
+
 function preload()
 {
     //Images
-    this.load.image('ball','assets/gameObjects/crystal.png');
+    this.load.image('1','assets/currency/1.png');
+    this.load.image('2','assets/currency/2.png');
+    this.load.image('5','assets/currency/5.png');
+    this.load.image('10','assets/currency/10.png');
+    this.load.image('20','assets/currency/20.png');
+    this.load.image('50','assets/currency/50.png');
+    this.load.image('100','assets/currency/100.png');
+    this.load.image('200','assets/currency/200.png');
+    this.load.image('500','assets/currency/500.png');
+    this.load.image('2000','assets/currency/2000.png');
+
     this.load.image('piggyBank','assets/gameObjects/piggyBank.png');
     this.load.image('bg','assets/gameObjects/bg.png');
 
@@ -130,13 +145,13 @@ function create()
     addSoundsAndMusic();
     changeLesson(currentLesson);
     // piggyBank = game.add.image(BANK_POS_X,BANK_POS_Y,'piggyBank');
-
+    moneyCollectedText = game.add.text(10, 10, '', { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color : '#000' , fontSize:'25px', fontStyle:'bold'});
 }
 
 function createGrids()
 {
     var k = 0;
-    for (let i = 0; i < 12; i++)
+    for (let i = 0; i < 14; i++)
     {
         var posX = GRID_CELL_SIZE/2 + (i * GRID_CELL_SIZE) ;
         var posY = 320;
@@ -200,7 +215,7 @@ function createBalls()
     switch (currentLesson)
     {
         case 1://Identify 100
-            balls[0] = new Ball(0,3,100,true);
+            balls[0] = new Ball(0,1,100,true);
             balls[1] = new Ball(1,5,200,false);
             balls[2] = new Ball(2,7,500,false);
             balls[3] = new Ball(3,9,2000,false);
@@ -216,8 +231,8 @@ function createBalls()
             break;
         case 3://Identify 2000
             balls[0] = new Ball(0,3,100,false);
-            balls[1] = new Ball(1,4,2000,false);
-            balls[2] = new Ball(2,6,200,true);
+            balls[1] = new Ball(1,4,2000,true);
+            balls[2] = new Ball(2,6,200,false);
             balls[3] = new Ball(3,9,500,false);
             resetFire(5);
             break;
@@ -240,9 +255,9 @@ function createBalls()
         case 6 : //Collect sum of 250.
             balls[0] = new Ball(0,2,200,true);
             balls[1] = new Ball(1,5,50,true);
-            balls[2] = new Ball(2,6,500,true);
-            balls[3] = new Ball(3,7,2000,true);
-            balls[4] = new Ball(4,12,5,true);
+            balls[2] = new Ball(2,6,500,false);
+            balls[3] = new Ball(3,7,2000,false);
+            balls[4] = new Ball(4,12,5,false);
             resetFire(9);
             break;
         case 7 : //Collect sum of 350.
@@ -256,28 +271,28 @@ function createBalls()
         case 8 : //Collect sum of 500.
             balls[0] = new Ball(0,3,200,true);
             balls[1] = new Ball(1,4,100,true);
-            balls[2] = new Ball(2,7,500,false);
+            balls[2] = new Ball(2,7,20,false);
             balls[3] = new Ball(3,8,2000,false);
             balls[4] = new Ball(4,12,200,true);
             resetFire(9);
             break;
-        case 9 : //Problem Solving
-            balls[0] = new Ball(0,3,200,true);
-            balls[1] = new Ball(1,5,300,false);
-            balls[2] = new Ball(2,17,400,true);
-            balls[3] = new Ball(3,36,600,true);
-            balls[4] = new Ball(4,34,700,false);
-            balls[5] = new Ball(5,21,900,true);
-            resetFire(9);
+        case 9 : //Problem Solving (150)
+            balls[0] = new Ball(0,3,200,false);
+            balls[1] = new Ball(1,5,500,false);
+            balls[2] = new Ball(2,6,2000,false);
+            balls[3] = new Ball(3,7,50,true);
+            balls[4] = new Ball(4,9,50,true);
+            balls[5] = new Ball(5,12,50,true);
+            resetFire(10);
             break;
-        case 10 : //Problem Solving
-            balls[0] = new Ball(0,7,90,true);
-            balls[1] = new Ball(1,9,70,false);
-            balls[2] = new Ball(2,21,60,true);
-            balls[3] = new Ball(3,23,50,true);
-            balls[4] = new Ball(4,35,30,false);
-            balls[5] = new Ball(5,31,10,true);
-            resetFire(9);
+        case 10 : //Problem Solving (400)
+            balls[0] = new Ball(0,3,100,true);
+            balls[1] = new Ball(1,5,100,true);
+            balls[2] = new Ball(2,6,2000,false);
+            balls[3] = new Ball(3,7,500,false);
+            balls[4] = new Ball(4,9,200,true);
+            balls[5] = new Ball(5,12,500,false);
+            resetFire(10);
             break;
     }
 }
@@ -312,7 +327,9 @@ function createAnimations(c)
     });
 }
 
-
+var prvAction;
+var action;
+var jumpVelocityX;
 
 function update()
 {
@@ -320,7 +337,8 @@ function update()
     {
         if (actionsQ.length > 0)
         {
-            var action = actionsQ.shift();
+            prvAction = action;
+            action = actionsQ.shift();
 
             if (action === ACTION_RIGHT || action === ACTION_LEFT)
             {
@@ -341,7 +359,20 @@ function update()
             }
             else if (action === ACTION_UP || action === ACTION_DOWN)
             {
-                velocityX = 1;
+                if(action === ACTION_UP)
+                {
+                    if (prvAction === ACTION_LEFT)
+                        jumpVelocityX = velocityX = -1;
+                    else if (prvAction === ACTION_RIGHT)
+                        jumpVelocityX = velocityX = 1;
+                    else
+                        jumpVelocityX = velocityX = 1;
+                }
+                else
+                {
+                    velocityX = jumpVelocityX;
+                }
+
                 velocityY = action === ACTION_DOWN ? 1 : -1;
                 currentDestinationY = player.y + DISTANCE_TO_TRAVEL * velocityY;
                 currentDestinationX = player.x + DISTANCE_TO_TRAVEL * velocityX;
@@ -412,20 +443,18 @@ function update()
     {
         runButton.innerHTML = "RUN";
     }
+
+    moneyCollectedText.text = "Money Collected : " + moneyCollected ;
 }
 
 
-function walk(action, stepsCount)
+function walk(action)
 {
     if(!isPlaying)
         return;
 
-    for (let i = 0; i < stepsCount; i++)
-    {
-        actionsQ.push(action);
-        d("push " + action);
-    }
-
+    actionsQ.push(action);
+    d("push " + action);
 }
 
 function collectDiamond()
@@ -454,6 +483,8 @@ function checkForPickUp()
             collectSound.play();
             ballPicked = true;
             d("NUMBER PICKED " + numberPicked);
+
+            moneyCollected += numberPicked;
 
             switch(currentLesson)
             {
@@ -518,7 +549,7 @@ function displayTaskSuccess()
 {
     d("Task Success");
     modalEle.hidden = false;
-    if(currentLesson === 11)
+    if(currentLesson === 10)
         endContentEle.hidden = false;
     else
         successContentEle.hidden = false;
@@ -542,6 +573,11 @@ function resetPlayer()
     velocityY = 0;
     actionsQ = [];
     isMoving = false;
+}
+
+function resetMoneyCollected()
+{
+    moneyCollected = 0;
 }
 
 function d(str) {
@@ -570,7 +606,7 @@ class Ball
         // d("Position X :" + posX);
         // d("Position Y :" + posY);
         this.id = id;
-        this.gameObject = game.add.image(posX,posY,'ball');
+        this.gameObject = game.add.image(posX,posY,number);
         this.gameObject.scale = 0.8;
         this.gridCell = getGridCell(posX,posY);
         this.isPicked = false;
@@ -593,7 +629,7 @@ class Ball
             textPosX = posX - 15;
         else
             textPosX = posX- 20;
-        this.text = game.add.text(textPosX, posY - 14, ''+number, { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color : '#000' , fontSize:'25px', fontStyle:'bold'});
+        this.text = game.add.text(textPosX, posY - 14, '', { fontFamily: 'Georgia, "Goudy Bookletter 1911", Times, serif', color : '#000' , fontSize:'25px', fontStyle:'bold'});
         this.gameObject.depth = 1;
         this.text.depth = 2;
     }
@@ -633,6 +669,7 @@ function changeLesson(q)
     d("CURRENT LESSON : " + currentLesson);
 
     // createGameObjects();
+    resetMoneyCollected();
     resetPlayer();
     createBalls();
     setPlaying(false);
@@ -716,16 +753,16 @@ function displayTask(index)
             description.innerHTML = "Collect 250 Rupees.";
             break;
         case 7:
-            description.innerHTML = "Collect 300 Rupees.";
-            break;
-        case 8:
             description.innerHTML = "Collect 350 Rupees.";
             break;
+        case 8:
+            description.innerHTML = "Collect 500 Rupees.";
+            break;
         case 9:
-            description.innerHTML = "One ball costs Rupees 10, Collect money for 3 balls.";
+            description.innerHTML = "One ball costs Rupees 50, Collect money for 3 balls.";
             break;
         case 10:
-            description.innerHTML = "One ball costs Rupees 10, Collect money for 4 balls.";
+            description.innerHTML = "One Racket costs Rupees 100, Collect money for 4 Rackets.";
             break;
     }
 }
@@ -815,12 +852,16 @@ function ifBlock()
 
 function isNextFire()
 {
-    return true;
+    return currentGridCellId === fireGridCellID - 1;
+}
+
+function registerAction(action)
+{
+    registeredActionForFire = action;
 }
 
 function jump()
 {
-    d("*********JUMP*************");
     actionsQ.push(ACTION_UP);
     actionsQ.push(ACTION_DOWN);
 }

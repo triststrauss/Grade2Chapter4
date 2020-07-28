@@ -7,6 +7,7 @@ function run()
     frameCount = 1;
 
     isPlaying = false;
+    resetMoneyCollected();
     resetPlayer();
     createBalls();
 

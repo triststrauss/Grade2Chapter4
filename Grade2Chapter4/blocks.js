@@ -13,6 +13,21 @@ Blockly.JavaScript['start_block'] = function (block) {
     return 'setPlaying(true);\n';
 };
 
+Blockly.Blocks["repeat_block"] = {
+    init: function () {
+        this.setNextStatement(true);
+        this.setPreviousStatement(true);
+        this.setOutput(false);
+        this.setColour("#16de34");
+        this.setTooltip('Repeat block');
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldNumber(3, 0, 20), 'TIMES');
+        this.appendStatementInput('DO')
+            .appendField(new Blockly.FieldImage('img/block_imgs/repeater.png', ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+    }
+};
+Blockly.JavaScript['repeat_block'] = Blockly.JavaScript['controls_repeat_ext'];
+
 
 Blockly.Blocks['collect_block'] = {
     init: function() {
@@ -36,7 +51,7 @@ Blockly.JavaScript['collect_block'] = function(block) {
 Blockly.Blocks['right_block'] = {
     init: function() {
         this.appendDummyInput()
-            .appendField("RIGHT");
+            .appendField(new Blockly.FieldImage("assets/blocks/rightArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
         this.setColour(230);
@@ -47,7 +62,25 @@ Blockly.Blocks['right_block'] = {
 
 Blockly.JavaScript['right_block'] = function(block) {
     // TODO: Assemble JavaScript into code variable.
-    var code = 'walk(ACTION_RIGHT,1);\n';
+    var code = 'walk(ACTION_RIGHT);\n';
+    return code;
+};
+
+Blockly.Blocks['left_block'] = {
+    init: function() {
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldImage("assets/blocks/leftArrow.png", ARROW_BLOCK_WIDTH, ARROW_BLOCK_HEIGHT));
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(230);
+        this.setTooltip("");
+        this.setHelpUrl("");
+    }
+};
+
+Blockly.JavaScript['left_block'] = function(block) {
+    // TODO: Assemble JavaScript into code variable.
+    var code = 'walk(ACTION_LEFT);\n';
     return code;
 };
 
@@ -114,7 +147,6 @@ Blockly.JavaScript['if_block'] = function(block) {
     var statements_then = Blockly.JavaScript.statementToCode(block, 'then');
     // TODO: Assemble JavaScript into code variable.
 
-    var code = 'if(isNextFire())\n' +
-        '        jump();\n';
+    var code = 'registerAction(ACTION_JUMP);\n';
     return code;
 };
